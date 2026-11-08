@@ -8,7 +8,7 @@ import { createAccount } from "@/app/actions/settings";
 import { detectMapping, type ColumnMapping, type Detection } from "@/lib/csv/columns";
 import { normalizeRows } from "@/lib/csv/normalize";
 import { ImportError, parseCsvBuffer, validateFileMeta, type ParsedCsv } from "@/lib/csv/parse";
-import type { CommitResult } from "@/lib/import/types";
+import { payloadTooLarge, TOO_LARGE_MESSAGE, type CommitResult } from "@/lib/import/types";
 import type { Account, AccountKind, Category, Subcategory } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { CategorizeStep } from "./categorize-step";
@@ -132,13 +132,15 @@ export function ImportWizard({
 
   function toCategorize() {
     if (!norm || !accountId) return;
+    const payload = {
+      accountId,
+      rows: norm.rows.map((r) => ({ line: r.line, date: r.date, description: r.description, amount: r.amount, currency: r.currency, balance: r.balance, bankType: r.bankType })),
+    };
+    if (payloadTooLarge(payload)) return setError(TOO_LARGE_MESSAGE);
     setError(null);
     setBusy(true);
     startTransition(async () => {
-      const res = await previewImport({
-        accountId,
-        rows: norm.rows.map((r) => ({ line: r.line, date: r.date, description: r.description, amount: r.amount, currency: r.currency, balance: r.balance, bankType: r.bankType })),
-      });
+      const res = await previewImport(payload);
       setBusy(false);
       if (!res.ok) return setError(res.error);
       const p = res.preview;
@@ -179,28 +181,32 @@ export function ImportWizard({
 
   function commit() {
     if (!norm || !accountId) return;
-    setError(null);
-    setBusy(true);
     const learned = new Map<string, { merchantKey: string; categoryId: string; subcategoryId: string | null }>();
     if (learn) {
       for (const r of rows) {
         if (r.edited && r.categoryId && r.merchantKey.length >= 3) learned.set(r.merchantKey, { merchantKey: r.merchantKey, categoryId: r.categoryId, subcategoryId: r.subcategoryId });
       }
     }
+    const payload = {
+      accountId,
+      filename,
+      bankProfile: detection?.bank ?? null,
+      mapping: mapping as unknown as Record<string, unknown>,
+      skippedRows: norm.skipped,
+      rows: rows.map((r) => ({
+        line: r.line, date: r.date, description: r.description, amount: r.amount, currency: r.currency, balance: r.balance, bankType: r.bankType,
+        // Rader som hoppes over trenger ikke originalraden – sparer plass i forespørselen
+        raw: r.include ? r.raw : {},
+        categoryId: r.categoryId, subcategoryId: r.subcategoryId, transfer: r.transfer, source: r.source,
+        confidence: r.confidence, approved: r.approved, include: r.include, duplicate: r.duplicate,
+      })),
+      learn: [...learned.values()],
+    };
+    if (payloadTooLarge(payload)) return setError(TOO_LARGE_MESSAGE);
+    setError(null);
+    setBusy(true);
     startTransition(async () => {
-      const res = await commitImport({
-        accountId,
-        filename,
-        bankProfile: detection?.bank ?? null,
-        mapping: mapping as unknown as Record<string, unknown>,
-        skippedRows: norm.skipped,
-        rows: rows.map((r) => ({
-          line: r.line, date: r.date, description: r.description, amount: r.amount, currency: r.currency, balance: r.balance, bankType: r.bankType,
-          raw: r.raw, categoryId: r.categoryId, subcategoryId: r.subcategoryId, transfer: r.transfer, source: r.source,
-          confidence: r.confidence, approved: r.approved, include: r.include, duplicate: r.duplicate,
-        })),
-        learn: [...learned.values()],
-      });
+      const res = await commitImport(payload);
       setBusy(false);
       if (!res.ok) return setError(res.error);
       setResult(res.result);

@@ -23,6 +23,9 @@ import { buildSlices } from "@/lib/finance/donut";
 import { forecastMonth } from "@/lib/finance/forecast";
 import { formatMoney, monthName, monthShort } from "@/lib/format";
 
+// Server Actions på denne siden (import, eksempeldata, omberegning) kan ta noen sekunder.
+export const maxDuration = 60;
+
 export const metadata: Metadata = { title: "Oversikt" };
 
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ m?: string }> }) {

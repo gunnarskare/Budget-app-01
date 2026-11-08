@@ -15,6 +15,9 @@ import { classify } from "@/lib/finance/classify";
 import { monthName } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+// Server Actions på denne siden (import, eksempeldata, omberegning) kan ta noen sekunder.
+export const maxDuration = 60;
+
 export const metadata: Metadata = { title: "Kategorier" };
 
 export default async function CategoriesPage({ searchParams }: { searchParams: Promise<{ fane?: string }> }) {

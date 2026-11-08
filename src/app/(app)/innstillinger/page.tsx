@@ -6,6 +6,9 @@ import { getProfile, requireUser } from "@/lib/data/context";
 import { getCore } from "@/lib/data/core";
 import { countTransactions } from "@/lib/data/loaders";
 
+// Server Actions på denne siden (import, eksempeldata, omberegning) kan ta noen sekunder.
+export const maxDuration = 60;
+
 export const metadata: Metadata = { title: "Innstillinger" };
 
 export default async function SettingsPage() {

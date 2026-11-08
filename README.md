@@ -8,6 +8,7 @@ Moderne, intelligent og brukervennlig budsjettapp: importer transaksjoner fra ba
 
 - [Funksjoner](#funksjoner)
 - [Kom i gang](#kom-i-gang)
+- [Deploy til Vercel](#deploy-til-vercel)
 - [Arkitektur](#arkitektur)
 - [Automatisk kategorisering](#automatisk-kategorisering)
 - [Sikkerhet og personvern](#sikkerhet-og-personvern)
@@ -70,7 +71,7 @@ Registrer deg → gå gjennom oppstarten → velg **«Prøv med eksempeldata»**
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | ja | Publishable (eller eldre anon) key – trygg å eksponere, RLS beskytter dataene |
 | `OPENAI_API_KEY` | nei | Slår på AI-steget i kategoriseringen. **Kun serverside.** Uten nøkkel fungerer alt annet |
 | `OPENAI_MODEL` | nei | Standard `gpt-4.1-mini` |
-| `NEXT_PUBLIC_SITE_URL` | nei | Brukes i e-postlenker (standard `http://localhost:3000`) |
+| `NEXT_PUBLIC_SITE_URL` | nei | Brukes i e-postlenker. Uten verdi brukes adressen forespørselen kom fra (virker lokalt, i Vercel-preview og i produksjon) |
 
 Det finnes ingen `service_role`-nøkkel i appen. Kontosletting skjer via en `security definer`-funksjon som bare kan slette innlogget bruker.
 
@@ -84,6 +85,23 @@ npm run typecheck   # tsc --noEmit
 npm test            # Vitest (126 tester)
 ./supabase/tests/run-local.sh   # migrasjoner + RLS-tester mot lokal Postgres (ikke Docker)
 ```
+
+## Deploy til Vercel
+
+Appen er klar for Vercel (Next.js 16, Node 22). `vercel.json` legger funksjonene i **Stockholm (`arn1`)** – bytt region hvis Supabase-databasen din ligger et annet sted, helst i samme region.
+
+1. **Importer repoet** i Vercel (*Add New → Project → Import Git Repository*). Rammeverk (Next.js) og byggekommando oppdages automatisk.
+2. **Miljøvariabler** (Project → Settings → Environment Variables, for *Production* og gjerne *Preview*):
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (eller `NEXT_PUBLIC_SUPABASE_ANON_KEY`, som Vercel–Supabase-integrasjonen setter automatisk)
+   - valgfritt: `OPENAI_API_KEY` (og `OPENAI_MODEL`)
+
+   `NEXT_PUBLIC_*` leses ved **bygging** – etter at du har lagt dem inn må du kjøre en ny deploy (*Redeploy*). Uten dem viser appen en oppsettside i stedet for å krasje.
+3. **Database:** kjør migrasjonene i `supabase/migrations/` mot Supabase-prosjektet (`supabase db push`).
+4. **Supabase Auth → URL Configuration:** sett *Site URL* til produksjonsadressen og legg til `https://<ditt-domene>/auth/callback` (og gjerne `https://*-<team>.vercel.app/auth/callback` for preview) under *Redirect URLs*. Ellers peker bekreftelses- og tilbakestillingslenker i e-post feil.
+5. **Registrering er åpen** for alle som finner adressen. Hver bruker ser bare sine egne data (RLS), men vurder å slå av «Allow new users to sign up» etter at du har laget din bruker, eller bruk e-postbekreftelse med egen SMTP-server (Supabase sin innebygde e-posttjeneste er sterkt begrenset).
+
+Grenser å kjenne til på Vercel: forespørsler er begrenset til 4,5 MB (importveiviseren stopper for store filer med en forståelig melding – del opp i perioder), og Server Actions har `maxDuration = 60` s.
 
 ## Arkitektur
 

@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { getProfile } from "@/lib/data/context";
 import { getCore } from "@/lib/data/core";
 
+// Server Actions på denne siden (import, eksempeldata, omberegning) kan ta noen sekunder.
+export const maxDuration = 60;
+
 export const metadata: Metadata = { title: "Importer transaksjoner" };
 
 export default async function ImportPage() {

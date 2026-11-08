@@ -15,4 +15,3 @@ export function getSupabaseEnv(): { url: string; key: string } {
   return { url: SUPABASE_URL, key: SUPABASE_KEY };
 }
 
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";

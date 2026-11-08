@@ -16,6 +16,9 @@ import { forecastMonth } from "@/lib/finance/forecast";
 import { capitalize, formatDateShort, formatMoney, monthLabel, monthName } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
+// Server Actions på denne siden (import, eksempeldata, omberegning) kan ta noen sekunder.
+export const maxDuration = 60;
+
 export const metadata: Metadata = { title: "Budsjett" };
 
 type SP = Record<string, string | string[] | undefined>;

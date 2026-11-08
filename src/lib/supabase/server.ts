@@ -4,8 +4,10 @@ import { getSupabaseEnv } from "./env";
 
 /** Supabase-klient for Server Components, Server Actions og Route Handlers. */
 export async function createClient() {
-  const { url, key } = getSupabaseEnv();
+  // cookies() først: da markeres siden som dynamisk under bygging, også når miljøvariablene mangler
+  // (f.eks. første Vercel-bygg før Supabase er koblet til) – ellers feiler forhåndsrenderingen.
   const cookieStore = await cookies();
+  const { url, key } = getSupabaseEnv();
   return createServerClient(url, key, {
     cookies: {
       getAll() {

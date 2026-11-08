@@ -14,8 +14,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
     serverActions: {
-      // Importer sendes som normaliserte rader (maks 5 000 rader) – 1 MB er for lite.
-      bodySizeLimit: "10mb",
+      // Importer sendes som normaliserte rader – 1 MB er for lite. Vercel tillater maks 4,5 MB per
+      // forespørsel, så importveiviseren stopper store filer før de sendes (se MAX_ACTION_BYTES).
+      bodySizeLimit: "4mb",
     },
   },
   async headers() {

@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
+// Server Actions på denne siden (import, eksempeldata, omberegning) kan ta noen sekunder.
+export const maxDuration = 60;
+
 export const metadata: Metadata = {
   title: { default: "Pengeflyt", template: "%s · Pengeflyt" },
   description: "Full oversikt over økonomien din – enkelt, trygt og litt gøy. Importer bankfiler, få automatisk kategorisering og følg budsjettet.",

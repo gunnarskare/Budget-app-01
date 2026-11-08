@@ -4,7 +4,7 @@
   "private": true,
   "description": "Moderne, intelligent og brukervennlig budsjettapp for norske husholdninger",
   "engines": {
-    "node": ">=20.9"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "next dev",

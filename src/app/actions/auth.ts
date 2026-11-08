@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { safeNext } from "@/lib/safe-next";
-import { SITE_URL } from "@/lib/supabase/env";
+import { resolveSiteUrl } from "@/lib/site-url";
 
 export type AuthState = { error?: string; message?: string } | null;
 
@@ -45,7 +45,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      emailRedirectTo: `${SITE_URL}/auth/callback`,
+      emailRedirectTo: `${await resolveSiteUrl()}/auth/callback`,
       data: parsed.data.name ? { display_name: parsed.data.name } : undefined,
     },
   });
@@ -68,7 +68,7 @@ export async function forgotPassword(_prev: AuthState, formData: FormData): Prom
   const parsed = z.object({ email }).safeParse({ email: formData.get("email") });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const supabase = await createClient();
-  await supabase.auth.resetPasswordForEmail(parsed.data.email, { redirectTo: `${SITE_URL}/auth/callback?next=/innstillinger` });
+  await supabase.auth.resetPasswordForEmail(parsed.data.email, { redirectTo: `${await resolveSiteUrl()}/auth/callback?next=/innstillinger` });
   // Samme svar uansett – avslører ikke hvilke e-poster som finnes.
   return { message: "Hvis e-posten finnes hos oss, har vi sendt en lenke for å lage nytt passord." };
 }

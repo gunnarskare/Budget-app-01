@@ -16,6 +16,9 @@ import type { Transaction } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { NewTransactionButton } from "./new-transaction-button";
 
+// Server Actions på denne siden (import, eksempeldata, omberegning) kan ta noen sekunder.
+export const maxDuration = 60;
+
 export const metadata: Metadata = { title: "Transaksjoner" };
 
 const PAGE_SIZE = 50;

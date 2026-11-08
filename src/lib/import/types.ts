@@ -62,3 +62,17 @@ export interface CommitResult {
 }
 
 export const MAX_IMPORT_ROWS = 5000;
+
+/**
+ * Største kropp en Server Action-forespørsel kan ha. Vercel avviser forespørsler over 4,5 MB, og
+ * Server Actions legger noe overhead oppå JSON-størrelsen – derfor et godt stykke under.
+ */
+export const MAX_ACTION_BYTES = 3_600_000;
+
+export const TOO_LARGE_MESSAGE =
+  "Filen inneholder for mye data til å importeres i én operasjon. Del den opp i kortere perioder (for eksempel ett år om gangen) og importer dem hver for seg.";
+
+/** Er nyttelasten for stor til å sendes til serveren? (kjøres i nettleseren før kallet) */
+export function payloadTooLarge(payload: unknown): boolean {
+  return new Blob([JSON.stringify(payload)]).size > MAX_ACTION_BYTES;
+}
