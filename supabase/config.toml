@@ -1,0 +1,26 @@
+# Minimal konfigurasjon for Supabase CLI (lokal utvikling: `supabase start` krever Docker).
+# Migrasjonene i ./migrations kjøres automatisk av `supabase start` / `supabase db reset`
+# og kan pushes til et eksternt prosjekt med `supabase db push`.
+project_id = "budget-app"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+enable_signup = true
+minimum_password_length = 8
+
+[auth.email]
+enable_signup = true
+# Skru på i produksjon. Lokalt er det enklere uten.
+enable_confirmations = false

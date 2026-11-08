@@ -1,0 +1,312 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/plus-jakarta-sans";
+
+/* =====================================================================
+   Designsystem – Pengeflyt  (se docs/03-designsystem.md)
+   Tokens defineres som CSS-variabler og kobles til Tailwind under.
+   Mørk modus: egne valgte trinn (ikke automatisk invertering), styrt av
+   OS-innstilling eller [data-theme] som vinner begge veier.
+   ===================================================================== */
+
+:root {
+  color-scheme: light;
+
+  --bg: #f7f5f2;
+  --surface: #ffffff;
+  --surface-2: #f4f2ee;
+  --ink: #1d1a2b;
+  --ink-2: #5a5770;
+  --ink-3: #75728a;
+  --line: #ebe8f0;
+  --line-2: #dcd8e6;
+
+  --primary: #5b3fd1;
+  --primary-hover: #4a32b0;
+  --primary-ink: #ffffff;
+  --primary-soft: #f1edff;
+  --primary-soft-ink: #4a32b0;
+  --accent-text: #5b3fd1;
+
+  --pos: #1f7a52;
+  --pos-soft: #e6f6ee;
+  --pos-fill: #2f9e6b;
+  --warn: #8f5400;
+  --warn-soft: #fff3df;
+  --warn-fill: #f2a33a;
+  --neg: #b03e3b;
+  --neg-soft: #fbebea;
+  --neg-fill: #cf4a47;
+
+  /* Budsjettmåler: fyllet bærer alvorlighet (primær → advarsel → kritisk) */
+  --meter-ok: #5b3fd1;
+  --meter-warn: #fab219;
+  --meter-over: #d03b3b;
+
+  /* Diagramfarger – validert kategoripalett (8 slots) */
+  --c1: #2a78d6;
+  --c2: #eb6834;
+  --c3: #1baf7a;
+  --c4: #eda100;
+  --c5: #e87ba4;
+  --c6: #008300;
+  --c7: #6250d6;
+  --c8: #e34948;
+  --c-other: #b5b3ac;
+  --chart-grid: #e8e6df;
+  --chart-axis: #c3c2b7;
+  --chart-text: #75728a;
+  --chart-surface: #ffffff;
+
+  --shadow-card: 0 1px 2px rgb(29 26 43 / 0.04), 0 8px 24px -12px rgb(29 26 43 / 0.1);
+  --shadow-pop: 0 4px 12px rgb(29 26 43 / 0.08), 0 24px 48px -16px rgb(29 26 43 / 0.22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #131118;
+    --surface: #1c1924;
+    --surface-2: #252132;
+    --ink: #f2f0f8;
+    --ink-2: #bcb8cf;
+    --ink-3: #928ea8;
+    --line: #2d2939;
+    --line-2: #3b3649;
+
+    --primary: #7a5ff0;
+    --primary-hover: #8d76f5;
+    --primary-ink: #ffffff;
+    --primary-soft: #2a2347;
+    --primary-soft-ink: #c9bcff;
+    --accent-text: #b3a3ff;
+
+    --pos: #5fd19b;
+    --pos-soft: #17332a;
+    --pos-fill: #3fb27f;
+    --warn: #f5b657;
+    --warn-soft: #3a2c12;
+    --warn-fill: #e8a43a;
+    --neg: #f08b88;
+    --neg-soft: #3b1f1f;
+    --neg-fill: #e06b67;
+
+    --meter-ok: #8d76f5;
+    --meter-warn: #fab219;
+    --meter-over: #e5605c;
+
+    --c1: #3987e5;
+    --c2: #d95926;
+    --c3: #199e70;
+    --c4: #c98500;
+    --c5: #d55181;
+    --c6: #008300;
+    --c7: #9085e9;
+    --c8: #e66767;
+    --c-other: #6d6a78;
+    --chart-grid: #2c2a36;
+    --chart-axis: #3b3846;
+    --chart-text: #928ea8;
+    --chart-surface: #1c1924;
+
+    --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+    --shadow-pop: 0 4px 12px rgb(0 0 0 / 0.4), 0 24px 48px -16px rgb(0 0 0 / 0.6);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #131118;
+  --surface: #1c1924;
+  --surface-2: #252132;
+  --ink: #f2f0f8;
+  --ink-2: #bcb8cf;
+  --ink-3: #928ea8;
+  --line: #2d2939;
+  --line-2: #3b3649;
+
+  --primary: #7a5ff0;
+  --primary-hover: #8d76f5;
+  --primary-ink: #ffffff;
+  --primary-soft: #2a2347;
+  --primary-soft-ink: #c9bcff;
+  --accent-text: #b3a3ff;
+
+  --pos: #5fd19b;
+  --pos-soft: #17332a;
+  --pos-fill: #3fb27f;
+  --warn: #f5b657;
+  --warn-soft: #3a2c12;
+  --warn-fill: #e8a43a;
+  --neg: #f08b88;
+  --neg-soft: #3b1f1f;
+  --neg-fill: #e06b67;
+
+  --meter-ok: #8d76f5;
+  --meter-warn: #fab219;
+  --meter-over: #e5605c;
+
+  --c1: #3987e5;
+  --c2: #d95926;
+  --c3: #199e70;
+  --c4: #c98500;
+  --c5: #d55181;
+  --c6: #008300;
+  --c7: #9085e9;
+  --c8: #e66767;
+  --c-other: #6d6a78;
+  --chart-grid: #2c2a36;
+  --chart-axis: #3b3846;
+  --chart-text: #928ea8;
+  --chart-surface: #1c1924;
+
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
+  --shadow-pop: 0 4px 12px rgb(0 0 0 / 0.4), 0 24px 48px -16px rgb(0 0 0 / 0.6);
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Plus Jakarta Sans Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-ink: var(--primary-ink);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-ink: var(--primary-soft-ink);
+  --color-accent: var(--accent-text);
+
+  --color-pos: var(--pos);
+  --color-pos-soft: var(--pos-soft);
+  --color-pos-fill: var(--pos-fill);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-fill: var(--warn-fill);
+  --color-neg: var(--neg);
+  --color-neg-soft: var(--neg-soft);
+  --color-neg-fill: var(--neg-fill);
+
+  --radius-card: 1.25rem;
+  --radius-ctl: 0.75rem;
+
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
+
+  --animate-fade-up: fade-up 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fade-in: fade-in 0.2s ease-out both;
+  --animate-pop: pop 0.35s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  --animate-grow: grow-x 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-shimmer: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes grow-x {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes shimmer {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@keyframes sheet-in {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes dialog-in {
+  from { transform: translate(-50%, -46%) scale(0.97); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+@keyframes confetti-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+html {
+  background: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 25%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Scrollbars – diskré */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+
+@layer components {
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-card);
+    box-shadow: var(--shadow-card);
+  }
+  .num-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    font-feature-settings: "tnum" 0;
+  }
+  .meter-track {
+    background: color-mix(in srgb, var(--meter-fill, var(--meter-ok)) 16%, var(--surface));
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (forced-colors: active) {
+  .card { border: 1px solid CanvasText; }
+}
