@@ -103,11 +103,13 @@ Hver transaksjon havner i nøyaktig én «bøtte» (`src/lib/finance/classify.ts
 ### Prognose
 
 `forventet saldo ved månedsslutt = (inntekt − utgifter − sparing hittil)
-  + forventet gjenstående inntekt (gjentakende, ikke mottatt ennå)
-  − forventede faste utgifter (gjentakende, ikke trukket ennå)
-  − variabelt daglig forbruk × gjenstående dager`
+  + forventet gjenstående inntekt   (gjentakende, ikke mottatt ennå – f.eks. lønn)
+  − forventede faste utgifter       (gjentakende, ikke trukket ennå)
+  − forventet variabelt forbruk     (det du vanligvis bruker i månedens gjenstående dager)`
 
-Variabelt forbruk beregnes uten transaksjoner som allerede tilhører gjentakende betalinger, slik at faste utgifter ikke telles to ganger. Ved for lite data (< 7 dager inn i måneden eller < 10 transaksjoner) vises prognosen som «foreløpig anslag».
+Variabelt forbruk bygger på dine egne siste hele måneder (maks 3): gjennomsnittet av utgiftene som falt på de *gjenstående dagene*, justert (dempet, 0,7–1,4×) for om du ligger over/under vanlig tempo så langt. Faste utgifter (gjentakende) holdes utenfor, så de ikke telles to ganger. Store poster tidlig i måneden (husleie) ekstrapoleres dermed aldri utover måneden. Uten historikk brukes lineært tempo og prognosen merkes «foreløpig». Sikkerhet: *høy* ≥ 3 måneders historikk og ≥ 7 dager inn i måneden, *middels* ≥ 1 måned, ellers *lav*.
+
+«Tilgjengelig nå» = inntekt hittil + kjent forventet inntekt − utgifter − sparing, slik at tallet ikke er dypt negativt før lønningsdag.
 
 ## 1.3 Kategoriseringsrørledning
 
@@ -139,7 +141,7 @@ Sendes: renset beskrivelse (tall ≥ 4 sifre, e-post, telefonnummer og kontonumr
 * **Hemmeligheter:** `OPENAI_API_KEY` kun på serveren. Ingen `service_role`-nøkkel i appen; kontosletting skjer via `security definer`-funksjon som kun kan slette innlogget bruker.
 * **Logging:** servercoden logger aldri beskrivelser, beløp eller rader – kun feilkoder.
 * **Sletting:** angre import, slette alle transaksjoner, fjerne eksempeldata, slette konto (cascade).
-* **Sikkerhetshoder** i `next.config.ts` (CSP-lite, frame-ancestors, nosniff, referrer-policy).
+* **Sikkerhetshoder** i `next.config.ts`: `frame-ancestors 'none'`, `X-Frame-Options`, `nosniff`, HSTS, `Referrer-Policy`, `Permissions-Policy`. (En full, nonce-basert CSP er ikke satt opp i første utkast.)
 
 ## 1.5 Mappestruktur
 
@@ -160,5 +162,6 @@ src/lib/supabase/         Klienter (browser/server/proxy)
 
 * **`users` → `profiles`.** Selve brukerne ligger i `auth.users`; `profiles` er den offentlige delen.
 * **Ingen lagring av CSV-filer (Supabase Storage brukes ikke).** Filen tolkes i nettleseren, og kun normaliserte rader + rå rad per transaksjon lagres. Mindre sensitiv data på lur, og originalbeskrivelsen er likevel bevart.
+* **AI brukes kun til kategorisering.** Innsiktene (anbefalingene) genereres av en regelbasert motor fra brukerens egne tall, med krav til datagrunnlag per innsikt – det gir etterprøvbare tall og ingen risiko for oppdiktede fakta. AI-formulerte sammendrag er et naturlig neste steg.
 * **Aggregering i TypeScript, ikke SQL-views.** Gjør beregningene testbare og uavhengige av databasen. Data hentes med paginering (PostgREST begrenser til 1 000 rader per kall).
 * **Budsjettgrense per kategori** ligger i `budget_categories` for aktuell periode (ikke som egen kolonne på kategorien) slik at historikk bevares. Måneder uten eget budsjett arver forrige budsjett.

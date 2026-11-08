@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { safeNext } from "@/app/actions/auth";
+import { safeNext } from "@/lib/safe-next";
 
 /** Mottar lenken fra bekreftelses-/tilbakestillings-e-post og lager sesjonen. */
 export async function GET(request: NextRequest) {

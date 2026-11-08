@@ -5,8 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Sikker JSON-parsing fra Server Action-resultat osv. */
-export function errorMessage(e: unknown, fallback = "Noe gikk galt. Prøv igjen."): string {
-  if (e instanceof Error && e.message) return e.message;
-  return fallback;
+/** Ny mengde der verdien er slått av/på (uten å mutere originalen). */
+export function toggled<T>(set: Set<T>, value: T): Set<T> {
+  const next = new Set(set);
+  if (next.has(value)) next.delete(value);
+  else next.add(value);
+  return next;
 }

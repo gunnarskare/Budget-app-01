@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { safeNext } from "@/lib/safe-next";
 import { SITE_URL } from "@/lib/supabase/env";
 
 export type AuthState = { error?: string; message?: string } | null;
@@ -18,12 +19,6 @@ function translate(message: string): string {
   if (m.includes("password") && (m.includes("weak") || m.includes("short") || m.includes("at least"))) return "Passordet er for svakt. Bruk minst 8 tegn.";
   if (m.includes("rate limit") || m.includes("too many")) return "For mange forsøk. Vent litt og prøv igjen.";
   return "Noe gikk galt. Prøv igjen om litt.";
-}
-
-/** Tillat kun interne stier som omdirigeringsmål (hindrer åpen redirect). */
-export function safeNext(value: FormDataEntryValue | string | null | undefined, fallback = "/oversikt"): string {
-  const v = typeof value === "string" ? value : "";
-  return v.startsWith("/") && !v.startsWith("//") && !v.includes("\\") ? v : fallback;
 }
 
 export async function signIn(_prev: AuthState, formData: FormData): Promise<AuthState> {

@@ -3,6 +3,7 @@ import { buildWorld, ACCOUNTS } from "@/lib/testing/fixtures";
 import { addMonths, monthKeyOf, todayISO, weekStart } from "@/lib/dates";
 import type { Budget, BudgetCategory, RecurringTransaction, TxLite } from "@/lib/types";
 import { dailyCumulativeExpenses, inMonth, spendByCategory, totals } from "./aggregate";
+import { buildSlices } from "./donut";
 import { buildBudgetView, paceProjection, resolveBudget, statusOf, suggestBudget } from "./budget";
 import { classify } from "./classify";
 import { forecastMonth } from "./forecast";
@@ -78,6 +79,25 @@ describe("eksempeldata gir troverdige månedstall", () => {
     expect(cum[8]).toBeNull();
     const filled = cum.filter((x): x is number => x !== null);
     for (let i = 1; i < filled.length; i++) expect(filled[i]).toBeGreaterThanOrEqual(filled[i - 1]);
+  });
+});
+
+describe("donut-deler", () => {
+  const prevMonth = addMonths(monthKeyOf(TODAY), -1);
+  const spend = spendByCategory(inMonth(txs, prevMonth).map(lite), lk);
+
+  it("viser maks 7 deler + «Andre», og delene summerer til 100 %", () => {
+    const slices = buildSlices(spend, lk, 5);
+    expect(slices.length).toBeLessThanOrEqual(6);
+    expect(slices.at(-1)?.other).toBe(true);
+    expect(slices.reduce((n, s) => n + s.share, 0)).toBeCloseTo(1, 6);
+    expect(slices[0].amount).toBeGreaterThanOrEqual(slices[1].amount);
+  });
+
+  it("viser alle når det er få nok kategorier, og ingenting uten utgifter", () => {
+    expect(buildSlices(spend, lk, 20).every((s) => !s.other)).toBe(true);
+    expect(buildSlices([], lk)).toEqual([]);
+    expect(buildSlices([{ categoryId: "cat-bolig", amount: -50, count: 1, share: 0 }], lk)).toEqual([]);
   });
 });
 

@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import {
   Baby,
   Bike,
@@ -104,6 +105,5 @@ export function Icon({
   className?: string;
   strokeWidth?: number;
 } & Omit<React.SVGProps<SVGSVGElement>, "ref">) {
-  const C = getIcon(name);
-  return <C className={className} strokeWidth={strokeWidth} aria-hidden="true" {...rest} />;
+  return createElement(getIcon(name), { className, strokeWidth, "aria-hidden": true, ...rest });
 }

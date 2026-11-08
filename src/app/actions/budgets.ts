@@ -8,6 +8,9 @@ import { requireUser } from "@/lib/data/context";
 import { getCore } from "@/lib/data/core";
 import { refreshDerived } from "@/lib/data/derived";
 import { fetchBudgets } from "@/lib/data/loaders";
+import { fetchTxLite } from "@/lib/data/transactions";
+import { addMonths, monthKeyOf, monthStart, todayISO } from "@/lib/dates";
+import { suggestBudget, type SuggestionResult } from "@/lib/finance/budget";
 import { isValidISO } from "@/lib/dates";
 import type { PeriodType } from "@/lib/types";
 
@@ -163,5 +166,16 @@ export async function applyBudgetSuggestions(input: z.input<typeof applySchema>)
     await refreshLater(supabase, user.id);
     revalidatePath("/", "layout");
     return { ok: true, lines: rows.length };
+  });
+}
+
+/** Foreslår realistiske budsjetter ut fra de siste 3–6 månedene med transaksjoner. */
+export async function getBudgetSuggestions(): Promise<ActionResult<{ result: SuggestionResult }>> {
+  return safe("getBudgetSuggestions", async () => {
+    const { supabase } = await requireUser();
+    const { lk } = await getCore();
+    const today = todayISO();
+    const txs = await fetchTxLite(supabase, { from: monthStart(addMonths(monthKeyOf(today), -7)) });
+    return { ok: true, result: suggestBudget(txs, lk, today) };
   });
 }

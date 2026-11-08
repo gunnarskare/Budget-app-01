@@ -46,7 +46,7 @@ Innholdsbredde maks 1200 px; kort i responsivt rutenett (1 → 2 → 3/4 kolonne
 
 ## 3.5 Komponenter (`src/components/ui`)
 
-Button (primary/secondary/ghost/danger/soft, størrelser), Card, Input/Select/Textarea, Label, Badge/Pill, Progress (meter med alvorlighetsgrad), Dialog (modal på desktop, bunnark på mobil), Tabs, Switch, Checkbox, EmptyState, Skeleton, AnimatedNumber, ConfidencePill, CategoryChip (ikon + farge + navn), Toaster (sonner).
+Button (primary/secondary/ghost/danger/soft, størrelser), Card, Input/Select/Textarea/Field, Badge, Meter (måler med alvorlighetsgrad), Dialog (modal på desktop, bunnark på mobil), Tabs, Switch, Checkbox, EmptyState, Skeleton, AnimatedMoney, ConfidencePill, CategoryIcon/CategoryChip (ikon + farge + navn), CategorySelect, Toaster (sonner).
 
 ## 3.6 Tilgjengelighet
 

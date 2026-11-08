@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useCurrency } from "@/lib/currency-context";
 import { formatMoney, type MoneyOptions } from "@/lib/format";
 
 /** Teller opp til verdien første gang den vises (respekterer «reduser bevegelse»). */
-export function AnimatedMoney({ value, duration = 900, ...opts }: { value: number; duration?: number } & MoneyOptions) {
+export function AnimatedMoney({ value, duration = 900, ...rest }: { value: number; duration?: number } & MoneyOptions) {
+  const ctxCurrency = useCurrency();
+  const opts = { currency: ctxCurrency, ...rest };
   const [shown, setShown] = useState(value);
   const first = useRef(true);
 
