@@ -20,6 +20,8 @@ Mørk modus: egne, valgte trinn (ikke automatisk invertering), samme tokens unde
 
 Kategorifarger og diagramserier bruker den validerte 8-slots paletten fra dataviz-metoden (blå, oransje, aqua, gul, magenta, grønn, fiolett, rød), tildelt **per kategori og fast** («farge følger entiteten, ikke rangeringen»). Donut/ranking viser maks 7 deler + «Andre» (nøytral grå). Inntekt vs. utgift bruker blå vs. oransje (ikke rød/grønn – sikrer CVD-lesbarhet); fortegn og ikoner bærer mening i tillegg til farge. Statusfarger (grønn/oransje/rød) brukes kun for budsjettstatus, alltid med ikon + tekst.
 
+**Fordelingsstolpen** (budsjettbygger og budsjettside) deler inntekten i fire deler: *Behov* (`--c1`, blå), *Ønsker* (`--c2`, oransje), *Sparing* (`--c3`, aqua/grønn) og *Til overs* (dempet nøytral). Tall og prosent står alltid i tegnforklaringen under stolpen – fargene bærer ikke mening alene – og stolpen har en tekstlig `aria-label`. Planlegger du mer enn du tjener, er stolpen planen (ikke inntekten) og «Mangler X» står ved siden av.
+
 ## 3.2 Typografi
 
 * **Plus Jakarta Sans** (variabel) til overskrifter og store tall – vennlig og moderne.

@@ -163,7 +163,7 @@ function Stat({ label, value, tone }: { label: string; value: string; tone?: "po
 export function StatusBar({ totals, currency }: { totals: PlanTotals; currency: string }) {
   const money = (n: number) => formatMoney(n, { currency });
   return (
-    <div className="sticky top-16 z-10 mb-5 rounded-2xl border border-line bg-surface/95 px-4 py-2.5 shadow-card backdrop-blur md:top-[4.5rem]" aria-live="polite">
+    <div className="sticky top-16 z-10 mb-5 rounded-2xl border border-line bg-surface/95 px-4 py-2.5 shadow-card backdrop-blur md:top-[4.5rem]">
       <dl className="grid grid-cols-2 gap-x-4 gap-y-1.5 sm:grid-cols-4">
         <Stat label="Inntekt" value={money(totals.income)} />
         <Stat label="Utgifter" value={money(totals.expenses)} />
