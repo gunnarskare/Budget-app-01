@@ -184,7 +184,7 @@ describe("prognose", () => {
 });
 
 describe("budsjett", () => {
-  const budget: Budget = { id: "b1", period_type: "month", period_start: "2026-10-01", planned_income: 38500, is_demo: true };
+  const budget: Budget = { id: "b1", period_type: "month", period_start: "2026-10-01", planned_income: 38500, planned_saving: null, is_demo: true };
   const lines: BudgetCategory[] = [
     { id: "l1", budget_id: "b1", category_id: "cat-dagligvarer", amount: 8000 },
     { id: "l2", budget_id: "b1", category_id: "cat-restaurant", amount: 1 },
@@ -222,7 +222,7 @@ describe("budsjett", () => {
   it("ukentlig budsjett bruker mandag–søndag", () => {
     expect(weekStart("2026-11-08")).toBe("2026-11-02"); // søndag → mandag samme uke
     expect(weekStart("2026-11-09")).toBe("2026-11-09");
-    const wk: Budget = { id: "w1", period_type: "week", period_start: "2026-11-02", planned_income: null, is_demo: false };
+    const wk: Budget = { id: "w1", period_type: "week", period_start: "2026-11-02", planned_income: null, planned_saving: null, is_demo: false };
     const view = buildBudgetView([wk], [{ id: "wl", budget_id: "w1", category_id: "cat-bolig", amount: 20000 }], "week", "2026-11-02", txs.map(lite), lk);
     const expected = spendByCategory(txs.filter((t) => t.booked_date >= "2026-11-02" && t.booked_date <= "2026-11-08").map(lite), lk).find((s) => s.categoryId === "cat-bolig")!.amount;
     expect(view.lines[0].spent).toBe(expected);
@@ -272,7 +272,7 @@ describe("innsikter", () => {
     { id: "d", budget_id: "b", category_id: "cat-shopping", amount: 2500 },
     { id: "e", budget_id: "b", category_id: "cat-transport", amount: 3000 },
   ];
-  const budget = buildBudgetView([{ id: "b", period_type: "month", period_start: "2026-11-01", planned_income: null, is_demo: true }], budgetLines, "month", "2026-11-01", txs.map(lite), lk);
+  const budget = buildBudgetView([{ id: "b", period_type: "month", period_start: "2026-11-01", planned_income: null, planned_saving: null, is_demo: true }], budgetLines, "month", "2026-11-01", txs.map(lite), lk);
   const insights = generateInsights({ txs: txs.map(lite), lk, today: TODAY, recurring, budget, forecast });
 
   it("lager konkrete innsikter med norske, vennlige formuleringer", () => {

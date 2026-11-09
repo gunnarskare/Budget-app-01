@@ -37,7 +37,7 @@ async function ensureBudget(supabase: Sb, userId: string, type: PeriodType, star
   const previous = budgets.filter((b) => b.period_type === type && b.period_start < start).sort((a, b) => b.period_start.localeCompare(a.period_start))[0];
   const { data, error } = await supabase
     .from("budgets")
-    .insert({ user_id: userId, period_type: type, period_start: start, planned_income: previous?.planned_income ?? null })
+    .insert({ user_id: userId, period_type: type, period_start: start, planned_income: previous?.planned_income ?? null, planned_saving: previous?.planned_saving ?? null })
     .select("id")
     .single();
   if (error || !data) throw new Error("budget insert");
@@ -116,7 +116,7 @@ export async function copyBudget(input: z.input<typeof copySchema>): Promise<Act
 
     const { data: target, error } = await supabase
       .from("budgets")
-      .upsert({ user_id: user.id, period_type: periodType, period_start: toStart, planned_income: from.planned_income }, { onConflict: "user_id,period_type,period_start" })
+      .upsert({ user_id: user.id, period_type: periodType, period_start: toStart, planned_income: from.planned_income, planned_saving: from.planned_saving }, { onConflict: "user_id,period_type,period_start" })
       .select("id")
       .single();
     if (error || !target) return fail("Kunne ikke opprette budsjettet.");

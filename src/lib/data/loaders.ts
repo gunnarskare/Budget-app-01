@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type {
   Budget,
   BudgetCategory,
+  BudgetPlanItem,
   FinancialInsight,
   ImportBatch,
   RecurringTransaction,
@@ -14,11 +15,23 @@ const RECURRING_COLUMNS =
 
 export async function fetchBudgets(supabase: SupabaseClient): Promise<{ budgets: Budget[]; lines: BudgetCategory[] }> {
   const [b, l] = await Promise.all([
-    supabase.from("budgets").select("id, period_type, period_start, planned_income, is_demo").order("period_start", { ascending: false }).limit(300),
+    supabase.from("budgets").select("id, period_type, period_start, planned_income, planned_saving, is_demo").order("period_start", { ascending: false }).limit(300),
     supabase.from("budget_categories").select("id, budget_id, category_id, amount").limit(10000),
   ]);
   if (b.error || l.error) throw new Error("Kunne ikke hente budsjett");
   return { budgets: (b.data ?? []) as unknown as Budget[], lines: (l.data ?? []) as unknown as BudgetCategory[] };
+}
+
+/** Budsjettplanen: postene (inntekt, utgift, sparing) budsjettet er bygget opp av. */
+export async function fetchPlanItems(supabase: SupabaseClient): Promise<BudgetPlanItem[]> {
+  const { data, error } = await supabase
+    .from("budget_plan_items")
+    .select("id, kind, nature, slot, name, category_id, subcategory_id, amount, frequency, sort_order")
+    .order("sort_order")
+    .order("created_at")
+    .limit(500);
+  if (error) throw new Error("Kunne ikke hente budsjettplanen");
+  return (data ?? []) as unknown as BudgetPlanItem[];
 }
 
 export async function fetchRecurring(supabase: SupabaseClient): Promise<RecurringTransaction[]> {

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight, FlaskConical, PartyPopper, PenLine, Sparkles, Upload } from "lucide-react";
+import { ArrowRight, FlaskConical, Hammer, PartyPopper, PenLine, Sparkles, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -77,6 +77,19 @@ export function OnboardingFlow({
       router.refresh();
       setStep("done");
       void celebrate("big");
+    });
+  }
+
+  /** Hopper rett til budsjettbyggeren – uten at brukeren må ha importert noe først. */
+  function buildBudgetFirst() {
+    start(async () => {
+      const res = await completeOnboarding();
+      if (!res.ok) {
+        toast.error(res.error);
+        return;
+      }
+      router.push("/budsjett/bygg");
+      router.refresh();
     });
   }
 
@@ -161,10 +174,11 @@ export function OnboardingFlow({
         {step === "method" && (
           <section className="animate-fade-up">
             <h1 className="font-display text-3xl font-bold tracking-tight">Hvordan vil du komme i gang?</h1>
-            <p className="mt-2 text-ink-2">Importer fra banken er raskest – men du kan også legge inn selv eller bare prøve først.</p>
+            <p className="mt-2 text-ink-2">Importer fra banken er raskest. Du kan også starte med å bygge et budsjett fra bunnen, legge inn selv eller bare prøve først.</p>
             <div className="mt-6 grid gap-3">
               {[
                 { icon: <Upload className="size-6" />, title: "Importer fra banken (CSV)", text: "Last opp en kontoutskrift – vi kategoriserer automatisk.", onClick: () => setStep("import"), badge: "Anbefalt" },
+                { icon: <Hammer className="size-6" />, title: "Bygg budsjettet først", text: "Start med inntekt, faste utgifter og sparing. Du trenger ingen bankfil.", onClick: buildBudgetFirst, badge: "Uten bankfil" },
                 { icon: <PenLine className="size-6" />, title: "Legg inn manuelt", text: "Registrer noen utgifter og inntekter selv.", onClick: () => setStep("manual") },
                 { icon: <FlaskConical className="size-6" />, title: "Prøv med eksempeldata", text: "Se appen med realistiske tall. Fjernes enkelt senere.", onClick: loadDemo },
               ].map((o) => (
@@ -220,7 +234,7 @@ export function OnboardingFlow({
           </section>
         )}
 
-        {step === "budget" && <BudgetStep categories={categories} currency={currency} onDone={() => { setStep("done"); void celebrate("big"); }} />}
+        {step === "budget" && <BudgetStep categories={categories} currency={currency} onBuild={buildBudgetFirst} building={pending} onDone={() => { setStep("done"); void celebrate("big"); }} />}
 
         {step === "done" && (
           <section className="animate-fade-up py-10 text-center">
@@ -239,7 +253,7 @@ export function OnboardingFlow({
   );
 }
 
-function BudgetStep({ categories, currency, onDone }: { categories: Category[]; currency: string; onDone: () => void }) {
+function BudgetStep({ categories, currency, onDone, onBuild, building }: { categories: Category[]; currency: string; onDone: () => void; onBuild: () => void; building: boolean }) {
   const [result, setResult] = useState<SuggestionResult | null>(null);
   const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -285,10 +299,15 @@ function BudgetStep({ categories, currency, onDone }: { categories: Category[]; 
         <p className="mt-4 text-ink-2">Regner ut forslag fra transaksjonene dine …</p>
       ) : !result || result.suggestions.length === 0 ? (
         <>
-          <p className="mt-2 text-ink-2">Vi trenger noen transaksjoner for å foreslå et realistisk budsjett. Du kan lage det senere under «Budsjett».</p>
-          <Button size="lg" className="mt-8" onClick={onDone}>
-            Fortsett <ArrowRight />
-          </Button>
+          <p className="mt-2 text-ink-2">Vi har ikke nok transaksjoner til å foreslå et budsjett ennå, men du kan bygge det fra bunnen: start med inntekt, faste utgifter og sparing.</p>
+          <div className="mt-8 flex flex-wrap gap-2">
+            <Button size="lg" onClick={onBuild} loading={building}>
+              <Hammer /> Bygg budsjettet
+            </Button>
+            <Button size="lg" variant="ghost" onClick={onDone}>
+              Hopp over
+            </Button>
+          </div>
         </>
       ) : (
         <>
@@ -323,9 +342,12 @@ function BudgetStep({ categories, currency, onDone }: { categories: Category[]; 
               <span className="font-semibold tabular-nums">{formatMoney(total, { currency })}</span>
             </div>
           </Card>
-          <div className="mt-8 flex gap-2">
+          <div className="mt-8 flex flex-wrap gap-2">
             <Button variant="ghost" onClick={onDone}>
               Hopp over
+            </Button>
+            <Button variant="ghost" onClick={onBuild} loading={building}>
+              <Hammer /> Bygg fra bunnen i stedet
             </Button>
             <Button size="lg" onClick={apply} loading={pending}>
               Bruk dette budsjettet <ArrowRight />

@@ -110,7 +110,28 @@ export interface Budget {
   period_type: PeriodType;
   period_start: string;
   planned_income: number | null;
+  /** Planlagt sparing i perioden (øyeblikksbilde fra budsjettplanen). */
+  planned_saving: number | null;
   is_demo: boolean;
+}
+
+export type PlanKind = "income" | "expense" | "saving";
+/** Faste utgifter har avtalt beløp (husleie, lån); variable er en ramme (mat, fritid). */
+export type PlanNature = "fixed" | "variable";
+
+/** En post i budsjettplanen. Beløpet gjelder per `frequency` og regnes om til måned i appen. */
+export interface BudgetPlanItem {
+  id: string;
+  kind: PlanKind;
+  nature: PlanNature;
+  /** Nøkkel for forslagsradene i veiviseren («bolig.husleie»); null for egne poster */
+  slot: string | null;
+  name: string;
+  category_id: string | null;
+  subcategory_id: string | null;
+  amount: number;
+  frequency: Frequency;
+  sort_order: number;
 }
 
 export interface BudgetCategory {

@@ -38,8 +38,8 @@ export function BudgetIndicators({
         {sorted.length === 0 ? (
           <p className="py-6 text-center text-sm text-ink-2">
             Du har ikke satt noe budsjett ennå.{" "}
-            <Link href="/budsjett" className="font-medium text-accent hover:underline">
-              Lag budsjett
+            <Link href="/budsjett/bygg" className="font-medium text-accent hover:underline">
+              Bygg budsjettet
             </Link>
           </p>
         ) : (

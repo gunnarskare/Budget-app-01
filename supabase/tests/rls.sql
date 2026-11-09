@@ -99,6 +99,43 @@ insert into public.budgets (id, period_type, period_start) values ('eeeeeeee-000
 insert into public.budget_categories (budget_id, category_id, amount)
   values ('eeeeeeee-0000-0000-0000-000000000001', 'cccccccc-0000-0000-0000-000000000001', 8000);
 
+-- Budsjettplan: poster med frekvens + planlagt sparing
+update public.budgets set planned_saving = 6000 where id = 'eeeeeeee-0000-0000-0000-000000000001';
+select pg_temp.assert((select planned_saving from public.budgets) = 6000, 'planlagt sparing lagres på budsjettet');
+insert into public.budget_plan_items (id, kind, nature, slot, name, category_id, amount, frequency)
+  values ('99999999-0000-0000-0000-000000000001', 'expense', 'variable', 'var.dagligvarer', 'Mat og dagligvarer', 'cccccccc-0000-0000-0000-000000000001', 1500, 'weekly');
+select pg_temp.assert((select count(*) from public.budget_plan_items) = 1, 'Alice ser sin egen budsjettpost (user_id settes av default)');
+do $$
+begin
+  insert into public.budget_plan_items (kind, nature, slot, name, category_id, amount)
+  values ('expense', 'variable', 'var.dagligvarer', 'Dobbel', 'cccccccc-0000-0000-0000-000000000001', 100);
+  raise exception 'skulle feilet';
+exception when unique_violation then
+  perform pg_temp.assert(true, 'samme forslagsrad (slot) kan bare brukes én gang per bruker');
+end $$;
+do $$
+begin
+  insert into public.budget_plan_items (kind, name, amount) values ('expense', 'Uten kategori', 100);
+  raise exception 'skulle feilet';
+exception when check_violation then
+  perform pg_temp.assert(true, 'utgiftspost må ha kategori');
+end $$;
+do $$
+begin
+  insert into public.budget_plan_items (kind, name, amount, frequency) values ('income', 'Lønn', 100, 'daily');
+  raise exception 'skulle feilet';
+exception when check_violation then
+  perform pg_temp.assert(true, 'ugyldig frekvens avvises');
+end $$;
+do $$
+begin
+  insert into public.budget_plan_items (kind, name, amount) values ('saving', 'Negativ', -5);
+  raise exception 'skulle feilet';
+exception when check_violation then
+  perform pg_temp.assert(true, 'negativt beløp avvises');
+end $$;
+insert into public.budget_plan_items (kind, nature, slot, name, amount) values ('income', 'fixed', 'inntekter.lonn', 'Lønn etter skatt', 38000);
+
 -- Sparemål + atomisk innskudd
 insert into public.savings_goals (id, name, target_amount) values ('ffffffff-0000-0000-0000-000000000001', 'Ferie', 10000);
 select pg_temp.assert((select current_amount from public.add_goal_contribution('ffffffff-0000-0000-0000-000000000001', 4000)) = 4000, 'innskudd øker current_amount');
@@ -114,10 +151,22 @@ select pg_temp.assert((select count(*) from public.accounts) = 0, 'Bob ser ingen
 select pg_temp.assert((select count(*) from public.categories) = 0, 'Bob ser ingen av Alices kategorier');
 select pg_temp.assert((select count(*) from public.budgets) = 0, 'Bob ser ingen av Alices budsjetter');
 select pg_temp.assert((select count(*) from public.savings_goals) = 0, 'Bob ser ingen av Alices sparemål');
+select pg_temp.assert((select count(*) from public.budget_plan_items) = 0, 'Bob ser ingen av Alices budsjettposter');
 select pg_temp.assert((select count(*) from public.profiles) = 1, 'Bob ser kun sin egen profil');
 
 with u as (update public.transactions set note = 'hacked' returning 1) select pg_temp.assert((select count(*) from u) = 0, 'Bob kan ikke oppdatere Alices transaksjoner');
 with d as (delete from public.transactions returning 1) select pg_temp.assert((select count(*) from d) = 0, 'Bob kan ikke slette Alices transaksjoner');
+
+with u as (update public.budget_plan_items set amount = 1 returning 1) select pg_temp.assert((select count(*) from u) = 0, 'Bob kan ikke endre Alices budsjettposter');
+with d as (delete from public.budget_plan_items returning 1) select pg_temp.assert((select count(*) from d) = 0, 'Bob kan ikke slette Alices budsjettposter');
+do $$
+begin
+  insert into public.budget_plan_items (kind, name, category_id, amount)
+  values ('expense', 'Snik', 'cccccccc-0000-0000-0000-000000000001', 1);
+  raise exception 'skulle feilet';
+exception when foreign_key_violation then
+  perform pg_temp.assert(true, 'kan ikke knytte budsjettpost til annen brukers kategori (sammensatt FK)');
+end $$;
 
 -- Bob prøver å henge en transaksjon på Alices konto (sammensatt FK stopper det)
 do $$
@@ -153,6 +202,13 @@ begin
   raise exception 'skulle feilet';
 exception when insufficient_privilege then
   perform pg_temp.assert(true, 'anon har ikke tilgang til transaksjoner');
+end $$;
+do $$
+begin
+  perform count(*) from public.budget_plan_items;
+  raise exception 'skulle feilet';
+exception when insufficient_privilege then
+  perform pg_temp.assert(true, 'anon har ikke tilgang til budsjettposter');
 end $$;
 do $$
 begin
@@ -192,6 +248,7 @@ reset role;
 select pg_temp.assert((select count(*) from auth.users) = 1, 'delete_my_account sletter bare Alice');
 select pg_temp.assert((select count(*) from public.accounts) = 0, 'cascade: kontoer slettet');
 select pg_temp.assert((select count(*) from public.categories) = 0, 'cascade: kategorier slettet');
+select pg_temp.assert((select count(*) from public.budget_plan_items) = 0, 'cascade: budsjettposter slettet');
 select pg_temp.assert((select count(*) from public.profiles) = 1, 'cascade: Alices profil slettet, Bobs beholdt');
 
 \echo

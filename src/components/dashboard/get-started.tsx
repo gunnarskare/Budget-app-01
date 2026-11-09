@@ -1,6 +1,6 @@
 "use client";
 
-import { FlaskConical, PenLine, Upload } from "lucide-react";
+import { FlaskConical, Hammer, PenLine, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
@@ -30,6 +30,17 @@ export function GetStarted({ accounts, categories, subcategories }: { accounts: 
   }
 
   const options = [
+    {
+      icon: <Hammer className="size-6" />,
+      title: "Bygg et budsjett",
+      badge: "Uten bankfil",
+      text: "Start med inntekt og faste utgifter, sett rammer og bestem hvor mye du vil spare. Du trenger ingen transaksjoner.",
+      action: (
+        <Button asChild>
+          <Link href="/budsjett/bygg">Start budsjettet</Link>
+        </Button>
+      ),
+    },
     {
       icon: <Upload className="size-6" />,
       title: "Importer bankfil",
@@ -66,15 +77,18 @@ export function GetStarted({ accounts, categories, subcategories }: { accounts: 
     <div className="animate-fade-up">
       <div className="mx-auto max-w-2xl py-6 text-center sm:py-10">
         <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">La oss få oversikt over pengene dine</h2>
-        <p className="mt-3 text-ink-2">Du trenger bare noen transaksjoner for å komme i gang. Velg det som passer best:</p>
+        <p className="mt-3 text-ink-2">Du kan planlegge fremover med et budsjett, eller se tilbake på det du har brukt. Velg det som passer best:</p>
       </div>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {options.map((o) => (
           <Card key={o.title} className="flex flex-col p-6 transition-transform duration-200 hover:-translate-y-1">
             <span aria-hidden="true" className="mb-4 grid size-12 place-items-center rounded-2xl bg-primary-soft text-primary-soft-ink">
               {o.icon}
             </span>
-            <h3 className="text-lg font-semibold">{o.title}</h3>
+            <h3 className="flex flex-wrap items-center gap-2 text-lg font-semibold">
+              {o.title}
+              {o.badge && <span className="rounded-full bg-pos-soft px-2 py-0.5 text-xs font-medium text-pos">{o.badge}</span>}
+            </h3>
             <p className="mt-1.5 flex-1 text-sm text-ink-2">{o.text}</p>
             <div className="mt-5">{o.action}</div>
           </Card>

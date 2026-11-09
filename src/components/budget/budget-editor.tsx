@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, Check, CheckCircle2, Copy, Sparkles } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -24,6 +25,8 @@ export interface BudgetRow {
   color: string;
   planned: number | null;
   spent: number;
+  /** Postene i budsjettplanen som kategoribeløpet er bygget opp av (månedsbeløp) */
+  plan?: { total: number; items: Array<{ name: string; monthly: number }> };
 }
 
 const parseAmount = (s: string): number | null => {
@@ -42,6 +45,7 @@ export function BudgetEditor({
   copyFrom,
   copyFromLabel,
   periodLabel,
+  hasHistory,
 }: {
   periodType: PeriodType;
   periodStart: string;
@@ -52,6 +56,8 @@ export function BudgetEditor({
   copyFrom: string | null;
   copyFromLabel: string | null;
   periodLabel: string;
+  /** Finnes det transaksjoner å foreslå ut fra? */
+  hasHistory: boolean;
 }) {
   const router = useRouter();
   const [pending, start] = useTransition();
@@ -120,9 +126,11 @@ export function BudgetEditor({
   return (
     <>
       <div className="mb-5 flex flex-wrap gap-2">
-        <Button onClick={() => setSuggestOpen(true)}>
-          <Sparkles /> Foreslå budsjett
-        </Button>
+        {hasHistory && (
+          <Button variant="secondary" onClick={() => setSuggestOpen(true)}>
+            <Sparkles /> Foreslå ut fra historikk
+          </Button>
+        )}
         {copyFrom && (
           <Button variant="secondary" onClick={copy} loading={pending}>
             <Copy /> Kopier fra {copyFromLabel}
@@ -146,7 +154,7 @@ export function BudgetEditor({
       <Card>
         <CardHeader>
           <CardTitle>Kategorier</CardTitle>
-          <span className="text-xs text-ink-3">Skriv inn beløp – lagres automatisk</span>
+          <span className="text-xs text-ink-3">Endringer lagres automatisk</span>
         </CardHeader>
         <CardContent className="pt-2">
           <ul className="divide-y divide-line/70">
@@ -180,6 +188,30 @@ export function BudgetEditor({
                       </span>
                     </div>
                   </div>
+                  {r.plan && periodType === "month" && (
+                    <details className="mt-2 pl-12 text-xs text-ink-2">
+                      <summary className="cursor-pointer select-none font-medium text-accent">
+                        Bygget opp av {r.plan.items.length} {r.plan.items.length === 1 ? "post" : "poster"}
+                        {Math.round(plannedNum) !== r.plan.total ? " · avviker fra planen" : ""}
+                      </summary>
+                      <ul className="mt-2 space-y-1">
+                        {r.plan.items.map((it, i) => (
+                          <li key={`${it.name}-${i}`} className="flex justify-between gap-3">
+                            <span className="truncate">{it.name}</span>
+                            <span className="tabular-nums">{formatMoney(it.monthly, { currency })}</span>
+                          </li>
+                        ))}
+                      </ul>
+                      {Math.round(plannedNum) !== r.plan.total && (
+                        <p className="mt-2">
+                          Planen sier {formatMoney(r.plan.total, { currency })}. Du har justert beløpet for denne måneden.{" "}
+                          <Link href="/budsjett/bygg" className="font-medium text-accent hover:underline">
+                            Åpne planen
+                          </Link>
+                        </p>
+                      )}
+                    </details>
+                  )}
                   {plannedNum > 0 && (
                     <div className="mt-3 pl-12">
                       <Meter value={r.spent / plannedNum} tone={status === "over" ? "over" : status === "warn" ? "warn" : "ok"} label={`${r.name}: ${formatMoney(r.spent, { currency })} av ${formatMoney(plannedNum, { currency })}`} />

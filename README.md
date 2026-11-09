@@ -24,11 +24,11 @@ Moderne, intelligent og brukervennlig budsjettapp: importer transaksjoner fra ba
 | **CSV-import** | Dra-og-slipp. Gjenkjenner skilletegn, tegnsett (UTF-8/Windows-1252), overskriftsrad, kolonner, datoformat, desimaltegn, inn/ut-kolonner. Kolonnemapping ved ukjent format. Duplikatkontroll, forhåndsvisning, flervalg, importhistorikk og **angre** |
 | **Kategorisering** | Brukerregler → tidligere godkjente valg → butikkregister → nøkkelord → AI (kun usikre). Konfidensnivå og «hvorfor» vises; lav sikkerhet sendes til godkjenning |
 | **Transaksjoner** | Søk, filter (dato, beløp, kategori, konto, type), inline kategoriendring med **Angre**, flervalg, «Til godkjenning»-kø, interne overføringer, refusjoner |
-| **Budsjett** | Måned og uke, per kategori, kopier forrige, **forslag fra siste 3–6 måneder**, arv fra forrige periode, planlagt inntekt, tempo-prognose |
+| **Budsjett** | **Budsjettbygger** (inntekt → faste utgifter → variable rammer → sparing → oppsummering) som fungerer helt uten historikk: poster med frekvens (uke/måned/kvartal/år regnes om til måned), sparemål med månedlig bidrag, fordeling i behov/ønsker/sparing (50/30/20 som rettesnor), råd og valgfri realitetssjekk mot det du faktisk har brukt. Dessuten måned og uke, per kategori («bygget opp av …»), kopier forrige, forslag fra historikk, arv fra forrige periode, tempo-prognose |
 | **Kategorier** | 12 hovedkategorier med underkategorier (norsk standard), egne kategorier, ikon/farge, budsjettgrense, regelstyring |
 | **Sparemål** | Flere mål, estimert måldato, «på rett spor», feiring (konfetti) ved milepæler |
 | **Rapporter** | Måned/år, trykk på kategori for transaksjonene bak tallet, største poster, gjentakende betalinger og abonnementer, sparing over tid |
-| **Onboarding** | Velkommen → valuta → importer/manuelt/eksempeldata → første budsjett → ferdig |
+| **Onboarding** | Velkommen → valuta → importer/manuelt/eksempeldata **eller bygg budsjettet først (ingen bankfil)** → første budsjett → ferdig |
 | **Innstillinger** | Profil, valuta, kontoer, AI av/på, tema (lys/mørk), slett transaksjoner / eksempeldata / hele kontoen |
 
 Responsivt: fast bunnmeny med hurtighandlinger på mobil, ikon-sidefelt på nettbrett, fullt sidefelt på desktop.
@@ -148,8 +148,8 @@ Endrer du «REMA 1000» fra Diverse til Dagligvarer, lagres valget som regel og 
 
 | Hva | Hvordan | Omfang |
 |---|---|---|
-| Enhetstester | `npm test` | 126 tester: tall-/datotolking, bankformater (DNB, SpareBank 1, Nordea, Danske, generisk, uten overskrift, ISO-8859-1), duplikater, kategorisering (alle steg), AI-validering/personvern, overføringspar, klassifisering, refusjoner, prognose, budsjett, forslag, innsikter (inkl. «for lite data»), sparemål |
-| Database | `supabase/tests/run-local.sh` | Migrasjoner + RLS-isolasjon (to brukere), uforanderlige originaldata, sammensatte FK-er, RPC-funksjoner, kontosletting |
+| Enhetstester | `npm test` | 177 tester: tall-/datotolking, bankformater (DNB, SpareBank 1, Nordea, Danske, generisk, uten overskrift, ISO-8859-1), duplikater, kategorisering (alle steg), AI-validering/personvern, overføringspar, klassifisering, refusjoner, prognose, budsjett, forslag, innsikter (inkl. «for lite data»), sparemål, **budsjettplan** (frekvens → måned, kategorisummer, behov/ønsker/sparing, råd, sparemål-krav, realitetssjekk, kladd og forslagsrader) |
+| Database | `supabase/tests/run-local.sh` | Migrasjoner + RLS-isolasjon (to brukere, inkl. budsjettposter), uforanderlige originaldata, sammensatte FK-er, RPC-funksjoner, kontosletting |
 | Lint/typer/bygg | `npm run lint && npm run typecheck && npm run build` | Rent |
 
 ## Status og kjente begrensninger

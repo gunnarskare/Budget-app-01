@@ -62,6 +62,7 @@ auth.users ──1:1── profiles
      │      │
      │      ├── budget_categories ── budgets
      │      └── categorization_rules
+     ├── budget_plan_items          (→ categories, subcategories)
      ├── savings_goals ── goal_contributions
      ├── recurring_transactions
      └── financial_insights
@@ -75,8 +76,9 @@ auth.users ──1:1── profiles
 | `subcategories` | Underkategorier | `category_id`, `system_key`, `is_saving` (sparing/investering regnes som sparing, ikke forbruk) |
 | `transactions` | Transaksjoner | `original_description` (uforanderlig), `description` (visningsnavn), `merchant_key`, `amount` (negativ = utgift), `category_source`, `confidence`, `review_status` (auto/review/user), `transfer_status` (none/suggested/confirmed), `fingerprint` + `occurrence`, `raw` (original CSV-rad), `source` (import/manual/demo) |
 | `import_batches` | Importhistorikk | `filename`, `bank_profile`, `column_mapping`, tellere, `status` (imported/undone) |
-| `budgets` | Budsjett for en periode | `period_type` (month/week), `period_start`, `planned_income` |
-| `budget_categories` | Planlagt beløp per kategori | `budget_id`, `category_id`, `amount` |
+| `budgets` | Budsjett for en periode (øyeblikksbilde) | `period_type` (month/week), `period_start`, `planned_income`, `planned_saving` |
+| `budget_categories` | Planlagt beløp per kategori i en periode | `budget_id`, `category_id`, `amount` |
+| `budget_plan_items` | **Budsjettplanen:** postene (inntekt, utgift, sparing) budsjettet bygges opp av | `kind` (income/expense/saving), `nature` (fixed/variable), `slot` (nøkkel for forslagsrad), `name`, `category_id`, `amount` + `frequency` (weekly/monthly/quarterly/yearly) |
 | `savings_goals` | Sparemål | `target_amount`, `current_amount`, `target_date`, `monthly_contribution` |
 | `goal_contributions` | Innskudd på sparemål | `amount`, `contributed_on` |
 | `categorization_rules` | Brukerregler og lærte regler | `pattern`, `match_type`, `direction`, `category_id`, `source` (user/learned), `mark_transfer`, `hit_count` |
@@ -165,3 +167,6 @@ src/lib/supabase/         Klienter (browser/server/proxy)
 * **AI brukes kun til kategorisering.** Innsiktene (anbefalingene) genereres av en regelbasert motor fra brukerens egne tall, med krav til datagrunnlag per innsikt – det gir etterprøvbare tall og ingen risiko for oppdiktede fakta. AI-formulerte sammendrag er et naturlig neste steg.
 * **Aggregering i TypeScript, ikke SQL-views.** Gjør beregningene testbare og uavhengige av databasen. Data hentes med paginering (PostgREST begrenser til 1 000 rader per kall).
 * **Budsjettgrense per kategori** ligger i `budget_categories` for aktuell periode (ikke som egen kolonne på kategorien) slik at historikk bevares. Måneder uten eget budsjett arver forrige budsjett.
+* **Budsjettet bygges opp av poster, ikke av historikk.** `budget_plan_items` er planen (kilden): hver post har beløp og frekvens og regnes om til månedsbeløp (hele kroner). Når planen lagres, skrives et *øyeblikksbilde* til valgt måned (`planned_income`, `planned_saving`, kategorilinjer i `budget_categories`); senere måneder arver det, og tidligere måneder påvirkes ikke. Historikk er kun en valgfri pekepinn (referansebeløp og realitetssjekk), aldri forutsetningen.
+* **Sparing er ikke et forbruk.** Planlagt sparing ligger i `budgets.planned_saving` (sparingsposter + månedlig bidrag til sparemål), ikke som en budsjettlinje i «Økonomi» – i tråd med at faktisk sparing klassifiseres som egen «bøtte» og ikke telles som utgift.
+* **Behov / ønsker / sparing** (tommelfingerregelen 50/30/20) utledes av kategoriens systemnøkkel (og underkategori, f.eks. mobil = behov), uten egen kolonne. Egne kategorier regnes som ønsker. Det er en rettesnor i oppsummeringen, aldri en regel appen håndhever.

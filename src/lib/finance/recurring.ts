@@ -105,17 +105,5 @@ export function detectRecurring(txs: TxLite[], lk: Lookups, today: string): Dete
   return out.sort((a, b) => Math.abs(b.typicalAmount) - Math.abs(a.typicalAmount));
 }
 
-/** Omregner til månedlig beløp (positivt tall) for sammenligning. */
-export function monthlyEquivalent(amount: number, frequency: Frequency): number {
-  const a = Math.abs(amount);
-  switch (frequency) {
-    case "weekly":
-      return (a * 52) / 12;
-    case "monthly":
-      return a;
-    case "quarterly":
-      return a / 3;
-    case "yearly":
-      return a / 12;
-  }
-}
+// Omregning til månedsbeløp bor i ./frequency (delt med budsjettplanen) – re-eksportert for eksisterende import.
+export { monthlyEquivalent } from "./frequency";
